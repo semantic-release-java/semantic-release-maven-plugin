@@ -1,0 +1,56 @@
+name: Release CI
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    name: Release CI
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 16
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: "adopt"
+          server-id: ossrh
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_TOKEN
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-build-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      # semantic-release:release will fail, when no release required
+      #- name: Release with Maven
+      #  run: mvn --batch-mode semantic-release:release
+      #  id: release
+      #  continue-on-error: true
+
+      #- name: Deploy with Maven
+      #  run: mvn --batch-mode deploy
+      #  env:
+      #    OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+      #    OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      #  if: steps.release.outcome == 'success' && steps.release.conclusion == 'success'
+
+      #- name: Deploy with Maven
+      #  run: mvn --batch-mode deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+      #  env:
+      #    GITHUB_ACTOR: $GITHUB_ACTOR
+      #    GITHUB_TOKEN: ${{ github.token }}
+      #    REPOSITORY_OWNER: ${{ github.repository_owner }}
+      #    REPOSITORY_NAME: ${{ github.event.repository.name }}
+      #  if: steps.release.outcome == 'success' && steps.release.conclusion == 'success'
