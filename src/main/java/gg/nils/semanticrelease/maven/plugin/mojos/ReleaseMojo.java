@@ -22,6 +22,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import java.io.IOException;
 
 @Mojo(name = ReleaseMojo.GOAL_RELEASE,
+        instantiationStrategy = InstantiationStrategy.SINGLETON,
         defaultPhase = LifecyclePhase.INITIALIZE,
         threadSafe = true)
 public class ReleaseMojo extends AbstractMojo {
@@ -34,9 +35,18 @@ public class ReleaseMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    private boolean called = false;
+
     @Override
     public void execute() throws MojoFailureException {
         Log logger = this.getLog();
+
+        if(called) {
+            logger.info("skip " + project.getArtifactId());
+            return;
+        }
+
+        called = true;
 
         FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder()
                 .findGitDir(this.project.getBasedir());
