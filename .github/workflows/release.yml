@@ -26,12 +26,12 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      #- name: Cache local Maven repository
-      #  uses: actions/cache@v2
-      #  with:
-      #    path: ~/.m2/repository
-      #    key: ${{ runner.os }}-maven-build-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
-      #    restore-keys: ${{ runner.os }}-maven-
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-build-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
 
       # semantic-release:release will fail, when no release required
       - name: Release with Maven
