@@ -34,10 +34,10 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       # semantic-release:release will fail, when no release required
-      #- name: Release with Maven
-      #  run: mvn --batch-mode semantic-release:release
-      #  id: release
-      #  continue-on-error: true
+      - name: Release with Maven
+        run: mvn --batch-mode semantic-release:release
+        id: release
+        continue-on-error: true
 
       #- name: Deploy with Maven
       #  run: mvn --batch-mode deploy
