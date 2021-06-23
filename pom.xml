@@ -4,7 +4,7 @@
 
     <groupId>gg.nils</groupId>
     <artifactId>semantic-release-maven-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>0</version>
     <packaging>maven-plugin</packaging>
 
     <name>semantic-release-maven-plugin</name>
