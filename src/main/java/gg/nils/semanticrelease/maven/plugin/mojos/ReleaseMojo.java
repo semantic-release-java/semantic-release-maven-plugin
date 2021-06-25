@@ -63,6 +63,14 @@ public class ReleaseMojo extends AbstractMojo {
 
             VersionControlProvider provider = new GitVersionControlProvider(config, git);
 
+            try {
+                logger.info("getLatestTag: " + provider.getLatestTag());
+                logger.info("getLatestVersion: " + provider.getLatestVersion());
+                logger.info("getNextVersion: " + provider.getNextVersion());
+                logger.info("getCommits: " + provider.getCommits().size());
+                logger.info("getCommitsSince: " + provider.getCommitsSince(provider.getLatestVersion()).size());
+            } catch (Throwable ignored) { }
+
             if (!provider.getCurrentBranch().getName().equals("master")
                     && !provider.getCurrentBranch().getName().equals("main")) {
                 throw new MojoFailureException("Only master and main branches can be released!");
@@ -72,8 +80,12 @@ public class ReleaseMojo extends AbstractMojo {
                 throw new MojoFailureException("This branch has uncommitted changes, cannot release!");
             }
 
-            if (provider.getLatestVersion().equals(provider.getNextVersion()) && provider.getLatestTag() != null) {
+            if (!provider.canBeReleased()) {
                 throw new MojoFailureException("There were no changes that would require a release!");
+            }
+
+            if (provider.getLatestVersion().equals(provider.getNextVersion()) && provider.getLatestTag() != null) {
+                throw new MojoFailureException("There were no changes that would require a release! (old)");
             }
 
             Ref ref = git.tag()
