@@ -39,6 +39,14 @@ jobs:
         id: release
         continue-on-error: true
 
+      - name: Sync develop
+        run: |
+          git checkout develop
+          git merge main
+          git push
+        if: steps.release.outcome == 'success' && steps.release.conclusion == 'success'
+        continue-on-error: true
+
       #- name: Deploy with Maven
       #  run: mvn --batch-mode deploy
       #  env:
