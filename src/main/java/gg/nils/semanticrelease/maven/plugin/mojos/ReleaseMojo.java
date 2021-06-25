@@ -9,6 +9,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -22,6 +23,7 @@ import java.io.IOException;
 
 @Mojo(name = ReleaseMojo.GOAL_RELEASE,
         instantiationStrategy = InstantiationStrategy.SINGLETON,
+        defaultPhase = LifecyclePhase.INITIALIZE,
         threadSafe = true)
 public class ReleaseMojo extends AbstractMojo {
 
@@ -33,9 +35,18 @@ public class ReleaseMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    private boolean called = false;
+
     @Override
     public void execute() throws MojoFailureException {
         Log logger = this.getLog();
+
+        if(called) {
+            logger.info("skip " + project.getArtifactId());
+            return;
+        }
+
+        called = true;
 
         FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder()
                 .findGitDir(this.project.getBasedir());
